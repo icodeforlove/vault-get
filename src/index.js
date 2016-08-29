@@ -6,10 +6,11 @@ class VaultGet {
 		this.vault = Vault({
 			apiVersion: 'v1',
 			endpoint: config.endpoint,
-			token: config.token
+			token: config.token,
+			rootPath: config.rootPath || 'secret'
 		});
 
-		this.keys = config.keys || [config.key];
+		this.keys = config.keys || config.key ? config.keys || [config.key] : [];
 		this.secret_shares = config.secret_shares || 1;
 	}
 
@@ -36,7 +37,7 @@ class VaultGet {
 			let { key, path } = leafs[leaf];
 
 			try {
-				traverse(config).set(path, (await this.vault.read(`secret/${key}`)).data);
+				traverse(config).set(path, (await this.vault.read(`${this.rootPath}/${key}`)).data);
 			} catch (error) {
 				throw new Error(`failed retriving key ${key}`);
 			}

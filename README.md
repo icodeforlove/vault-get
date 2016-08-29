@@ -16,9 +16,10 @@ simple usage
 import VaultGet from 'vault-get';
 
 let vault = VaultGet({
-	endpoint: '...',
-	token: '...',
-	key: '...' // or keys: ['...', '...', '...']
+	endpoint: '...', // (required)
+	token: '...', // (required)
+	key: '...', // or keys: ['...', '...', '...'] (optional)
+	rootPath: 'secret' // (optional, default is secret)
 });
 
 let config = await vault.get({

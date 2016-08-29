@@ -37,10 +37,11 @@ var VaultGet = function () {
 		this.vault = (0, _nodeVault2.default)({
 			apiVersion: 'v1',
 			endpoint: config.endpoint,
-			token: config.token
+			token: config.token,
+			rootPath: config.rootPath || 'secret'
 		});
 
-		this.keys = config.keys || [config.key];
+		this.keys = config.keys || config.key ? config.keys || [config.key] : [];
 		this.secret_shares = config.secret_shares || 1;
 	}
 
@@ -100,7 +101,7 @@ var VaultGet = function () {
 								_context.t0 = (0, _traverse2.default)(config);
 								_context.t1 = path;
 								_context.next = 18;
-								return this.vault.read('secret/' + _key);
+								return this.vault.read(this.rootPath + '/' + _key);
 
 							case 18:
 								_context.t2 = _context.sent.data;
