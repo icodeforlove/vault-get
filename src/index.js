@@ -6,12 +6,12 @@ class VaultGet {
 		this.vault = Vault({
 			apiVersion: 'v1',
 			endpoint: config.endpoint,
-			token: config.token,
-			rootPath: config.rootPath || 'secret'
+			token: config.token
 		});
 
 		this.keys = config.keys || config.key ? config.keys || [config.key] : [];
-		this.secret_shares = config.secret_shares || 1;
+		this.secretShares = config.secret_shares || 1;
+		this.rootPath = config.rootPath || 'secret';
 	}
 
 	getTraversableLeafs (object) {
@@ -28,7 +28,7 @@ class VaultGet {
 
 	async get (config) {
 		for (let key = 0; key < this.keys.length; key++) {
-			await this.vault.unseal({secret_shares: this.secret_shares, key: this.keys[key]});
+			await this.vault.unseal({secret_shares: this.secretShares, key: this.keys[key]});
 		}
 
 		let leafs = this.getTraversableLeafs(config);

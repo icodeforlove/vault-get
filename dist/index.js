@@ -37,12 +37,12 @@ var VaultGet = function () {
 		this.vault = (0, _nodeVault2.default)({
 			apiVersion: 'v1',
 			endpoint: config.endpoint,
-			token: config.token,
-			rootPath: config.rootPath || 'secret'
+			token: config.token
 		});
 
 		this.keys = config.keys || config.key ? config.keys || [config.key] : [];
-		this.secret_shares = config.secret_shares || 1;
+		this.secretShares = config.secret_shares || 1;
+		this.rootPath = config.rootPath || 'secret';
 	}
 
 	(0, _createClass3.default)(VaultGet, [{
@@ -77,7 +77,7 @@ var VaultGet = function () {
 								}
 
 								_context.next = 4;
-								return this.vault.unseal({ secret_shares: this.secret_shares, key: this.keys[key] });
+								return this.vault.unseal({ secret_shares: this.secretShares, key: this.keys[key] });
 
 							case 4:
 								key++;
