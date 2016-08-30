@@ -37,7 +37,8 @@ class VaultGet {
 			let { key, path } = leafs[leaf];
 
 			try {
-				traverse(config).set(path, (await this.vault.read(`${this.rootPath}/${key}`)).data);
+				let data = (await this.vault.read(`${this.rootPath}/${key}`)).data;
+				traverse(config).set(path, data.value || data);
 			} catch (error) {
 				throw new Error(`failed retriving key ${key}`);
 			}

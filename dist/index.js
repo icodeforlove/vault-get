@@ -62,7 +62,7 @@ var VaultGet = function () {
 		key: 'get',
 		value: function () {
 			var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(config) {
-				var key, leafs, leaf, _leafs$leaf, _key, path;
+				var key, leafs, leaf, _leafs$leaf, _key, path, data;
 
 				return _regenerator2.default.wrap(function _callee$(_context) {
 					while (1) {
@@ -90,7 +90,7 @@ var VaultGet = function () {
 
 							case 9:
 								if (!(leaf < leafs.length)) {
-									_context.next = 28;
+									_context.next = 26;
 									break;
 								}
 
@@ -98,38 +98,35 @@ var VaultGet = function () {
 								_key = _leafs$leaf.key;
 								path = _leafs$leaf.path;
 								_context.prev = 13;
-								_context.t0 = (0, _traverse2.default)(config);
-								_context.t1 = path;
-								_context.next = 18;
+								_context.next = 16;
 								return this.vault.read(this.rootPath + '/' + _key);
 
-							case 18:
-								_context.t2 = _context.sent.data;
+							case 16:
+								data = _context.sent.data;
 
-								_context.t0.set.call(_context.t0, _context.t1, _context.t2);
-
-								_context.next = 25;
+								(0, _traverse2.default)(config).set(path, data.value || data);
+								_context.next = 23;
 								break;
 
-							case 22:
-								_context.prev = 22;
-								_context.t3 = _context['catch'](13);
+							case 20:
+								_context.prev = 20;
+								_context.t0 = _context['catch'](13);
 								throw new Error('failed retriving key ' + _key);
 
-							case 25:
+							case 23:
 								leaf++;
 								_context.next = 9;
 								break;
 
-							case 28:
+							case 26:
 								return _context.abrupt('return', config);
 
-							case 29:
+							case 27:
 							case 'end':
 								return _context.stop();
 						}
 					}
-				}, _callee, this, [[13, 22]]);
+				}, _callee, this, [[13, 20]]);
 			}));
 
 			function get(_x) {
