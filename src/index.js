@@ -1,5 +1,9 @@
 import Vault from 'node-vault';
 import traverse from 'traverse';
+import Debug from 'debug';
+import c from 'template-colors';
+
+const debug = Debug('vault');
 
 class VaultGet {
 	constructor (config) {
@@ -31,20 +35,32 @@ class VaultGet {
 			await this.vault.unseal({secret_shares: this.secretShares, key: this.keys[key]});
 		}
 
-		let leafs = this.getTraversableLeafs(config);
+		let leafs = this.getTraversableLeafs(config),
+			leafsToResolve = [];
 
-		for (let leaf = 0; leaf < leafs.length; leaf++) {
-			let { key, path } = leafs[leaf];
-
-			try {
-				let data = (await this.vault.read(`${this.rootPath}/${key}`)).data;
-				traverse(config).set(path, data.value || data);
-			} catch (error) {
-				throw new Error(`failed retriving key ${key}`);
-			}
+		for (let i = 0; i < leafs.length; i++) {
+			let leaf = leafs[i];
+			leafsToResolve.push(this.resolveLeaf({config, leaf}));
 		}
 
+		debug(c`fetching ${leafsToResolve.length}.bold secrets from vault`.green);
+
+		await Promise.all(leafsToResolve);
+
 		return config;
+	}
+
+	async resolveLeaf ({config, leaf}) {
+		let { key, path } = leaf;
+
+		try {
+			let data = (await this.vault.read(`${this.rootPath}/${key}`)).data;
+			traverse(config).set(path, data.value || data);
+			debug(c`${'loaded'}.dim ${key}.bold`);
+		} catch (error) {
+			error.stack = c`${'vault-get:'}.bold failed retriving key ${`"${key}"`}.bold, are you sure it exists?\n${error.stack}`.red.toString();
+			throw error;
+		}
 	}
 }
 

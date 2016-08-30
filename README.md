@@ -48,3 +48,9 @@ let databases = await vault.get({
 });
 
 ```
+
+## debugging
+
+```javascript
+DEBUG=vault ...
+```

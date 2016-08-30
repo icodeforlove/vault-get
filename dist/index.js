@@ -8,6 +8,14 @@ var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
 
+var _promise = require('babel-runtime/core-js/promise');
+
+var _promise2 = _interopRequireDefault(_promise);
+
+var _taggedTemplateLiteral2 = require('babel-runtime/helpers/taggedTemplateLiteral');
+
+var _taggedTemplateLiteral3 = _interopRequireDefault(_taggedTemplateLiteral2);
+
 var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
@@ -20,6 +28,10 @@ var _createClass2 = require('babel-runtime/helpers/createClass');
 
 var _createClass3 = _interopRequireDefault(_createClass2);
 
+var _templateObject = (0, _taggedTemplateLiteral3.default)(['fetching ', '.bold secrets from vault'], ['fetching ', '.bold secrets from vault']),
+    _templateObject2 = (0, _taggedTemplateLiteral3.default)(['', '.dim ', '.bold'], ['', '.dim ', '.bold']),
+    _templateObject3 = (0, _taggedTemplateLiteral3.default)(['', '.bold failed retriving key ', '.bold, are you sure it exists?\n', ''], ['', '.bold failed retriving key ', '.bold, are you sure it exists?\\n', '']);
+
 var _nodeVault = require('node-vault');
 
 var _nodeVault2 = _interopRequireDefault(_nodeVault);
@@ -28,7 +40,17 @@ var _traverse = require('traverse');
 
 var _traverse2 = _interopRequireDefault(_traverse);
 
+var _debug = require('debug');
+
+var _debug2 = _interopRequireDefault(_debug);
+
+var _templateColors = require('template-colors');
+
+var _templateColors2 = _interopRequireDefault(_templateColors);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var debug = (0, _debug2.default)('vault');
 
 var VaultGet = function () {
 	function VaultGet(config) {
@@ -62,8 +84,7 @@ var VaultGet = function () {
 		key: 'get',
 		value: function () {
 			var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(config) {
-				var key, leafs, leaf, _leafs$leaf, _key, path, data;
-
+				var key, leafs, leafsToResolve, i, leaf;
 				return _regenerator2.default.wrap(function _callee$(_context) {
 					while (1) {
 						switch (_context.prev = _context.next) {
@@ -85,48 +106,29 @@ var VaultGet = function () {
 								break;
 
 							case 7:
-								leafs = this.getTraversableLeafs(config);
-								leaf = 0;
+								leafs = this.getTraversableLeafs(config), leafsToResolve = [];
 
-							case 9:
-								if (!(leaf < leafs.length)) {
-									_context.next = 26;
-									break;
+
+								for (i = 0; i < leafs.length; i++) {
+									leaf = leafs[i];
+
+									leafsToResolve.push(this.resolveLeaf({ config: config, leaf: leaf }));
 								}
 
-								_leafs$leaf = leafs[leaf];
-								_key = _leafs$leaf.key;
-								path = _leafs$leaf.path;
-								_context.prev = 13;
-								_context.next = 16;
-								return this.vault.read(this.rootPath + '/' + _key);
+								debug((0, _templateColors2.default)(_templateObject, leafsToResolve.length).green);
 
-							case 16:
-								data = _context.sent.data;
+								_context.next = 12;
+								return _promise2.default.all(leafsToResolve);
 
-								(0, _traverse2.default)(config).set(path, data.value || data);
-								_context.next = 23;
-								break;
-
-							case 20:
-								_context.prev = 20;
-								_context.t0 = _context['catch'](13);
-								throw new Error('failed retriving key ' + _key);
-
-							case 23:
-								leaf++;
-								_context.next = 9;
-								break;
-
-							case 26:
+							case 12:
 								return _context.abrupt('return', config);
 
-							case 27:
+							case 13:
 							case 'end':
 								return _context.stop();
 						}
 					}
-				}, _callee, this, [[13, 20]]);
+				}, _callee, this);
 			}));
 
 			function get(_x) {
@@ -134,6 +136,52 @@ var VaultGet = function () {
 			}
 
 			return get;
+		}()
+	}, {
+		key: 'resolveLeaf',
+		value: function () {
+			var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(_ref3) {
+				var config = _ref3.config;
+				var leaf = _ref3.leaf;
+				var key, path, data;
+				return _regenerator2.default.wrap(function _callee2$(_context2) {
+					while (1) {
+						switch (_context2.prev = _context2.next) {
+							case 0:
+								key = leaf.key;
+								path = leaf.path;
+								_context2.prev = 2;
+								_context2.next = 5;
+								return this.vault.read(this.rootPath + '/' + key);
+
+							case 5:
+								data = _context2.sent.data;
+
+								(0, _traverse2.default)(config).set(path, data.value || data);
+								debug((0, _templateColors2.default)(_templateObject2, 'loaded', key));
+								_context2.next = 14;
+								break;
+
+							case 10:
+								_context2.prev = 10;
+								_context2.t0 = _context2['catch'](2);
+
+								_context2.t0.stack = (0, _templateColors2.default)(_templateObject3, 'vault-get:', '"' + key + '"', _context2.t0.stack).red.toString();
+								throw _context2.t0;
+
+							case 14:
+							case 'end':
+								return _context2.stop();
+						}
+					}
+				}, _callee2, this, [[2, 10]]);
+			}));
+
+			function resolveLeaf(_x2) {
+				return _ref2.apply(this, arguments);
+			}
+
+			return resolveLeaf;
 		}()
 	}]);
 	return VaultGet;
