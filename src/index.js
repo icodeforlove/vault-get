@@ -3,7 +3,6 @@ import traverse from 'traverse';
 import Debug from 'debug';
 import c from 'template-colors';
 import rtry from 'rtry';
-import _ from 'lodash';
 
 const debug = Debug('vault');
 
@@ -32,10 +31,7 @@ class VaultGet {
 		return leafs;
 	}
 
-	@rtry({retries: 10, verbose: true})
 	async getValue (config) {
-		config = _.clone(config);
-
 		for (let key = 0; key < this.keys.length; key++) {
 			await this.vault.unseal({secret_shares: this.secretShares, key: this.keys[key]});
 		}
@@ -55,6 +51,7 @@ class VaultGet {
 		return config;
 	}
 
+	@rtry({retries: 10, verbose: true})
 	async resolveLeaf ({config, leaf}) {
 		let { key, path } = leaf;
 
