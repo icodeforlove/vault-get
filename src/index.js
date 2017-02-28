@@ -44,21 +44,21 @@ class VaultGet {
 			leafsToResolve.push(this.resolveLeaf({config, leaf}));
 		}
 
-		debug(c`fetching ${leafsToResolve.length}.bold secrets from vault`.green);
+		debug(c`fetching ${leafsToResolve.length}.bold secrets from vault`.green.toString());
 
 		await Promise.all(leafsToResolve);
 
 		return config;
 	}
 
-	@rtry({retries: 10, verbose: true})
+	@rtry({retries: 10,  beforeRetry: ({error}) => debug(error.stack)})
 	async resolveLeaf ({config, leaf}) {
 		let { key, path } = leaf;
 
 		try {
 			let data = (await this.vault.read(`${this.rootPath}/${key}`)).data;
 			traverse(config).set(path, data.value || data);
-			debug(c`${'loaded'}.dim ${key}.bold`);
+			debug(c`${'loaded'}.dim ${key}.bold`.toString());
 		} catch (error) {
 			error.stack = c`${'vault-get:'}.bold failed retriving key ${`"${key}"`}.bold, are you sure it exists?\n${error.stack}`.red.toString();
 			throw error;

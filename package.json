@@ -1,6 +1,6 @@
 {
   "name": "vault-get",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -15,7 +15,7 @@
   "dependencies": {
     "debug": "2.2.0",
     "node-vault": "0.5.1",
-    "rtry": "0.0.1",
+    "rtry": "0.0.3",
     "template-colors": "0.0.4",
     "traverse": "0.6.6"
   },
