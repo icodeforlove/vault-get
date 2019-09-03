@@ -2,7 +2,7 @@ import Vault from 'node-vault';
 import traverse from 'traverse';
 import Debug from 'debug';
 import c from 'template-colors';
-import rtry from 'rtry';
+import atmpt from 'atmpt';
 
 const debug = Debug('vault');
 
@@ -51,18 +51,23 @@ class VaultGet {
 		return config;
 	}
 
-	@rtry({retries: 10,  beforeRetry: ({error}) => debug(error.stack)})
 	async resolveLeaf ({config, leaf}) {
-		let { key, path } = leaf;
+		return await atmpt(async attempt => {
+			let { key, path } = leaf;
 
-		try {
-			let data = (await this.vault.read(`${this.rootPath}/${key}`)).data;
-			traverse(config).set(path, data.value || data);
-			debug(c`${'loaded'}.dim ${key}.bold`.toString());
-		} catch (error) {
-			error.stack = c`${'vault-get:'}.bold failed retriving key ${`"${key}"`}.bold, are you sure it exists?\n${error.stack}`.red.toString();
-			throw error;
-		}
+			if (attempt) {
+				debug(`retry #${attempt}: ${this.rootPath}/${key}`);
+			}
+
+			try {
+				let data = (await this.vault.read(`${this.rootPath}/${key}`)).data;
+				traverse(config).set(path, data.value || data);
+				debug(c`${'loaded'}.dim ${key}.bold`.toString());
+			} catch (error) {
+				error.stack = c`${'vault-get:'}.bold failed retriving key ${`"${key}"`}.bold, are you sure it exists?\n${error.stack}`.red.toString();
+				throw error;
+			}
+		}, {maxAttempts: 10, delay: attempt => attempt * 1000});
 	}
 }
 
